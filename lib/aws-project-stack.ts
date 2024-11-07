@@ -6,7 +6,7 @@ export class AwsProjectStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const x: number = 11;
+
 
   }
 }
