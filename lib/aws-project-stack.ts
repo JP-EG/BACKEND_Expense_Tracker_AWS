@@ -12,8 +12,8 @@ export class AwsProjectStack extends cdk.Stack {
         this,
         "myFirstLambda",
         {
-            entry: "./lib/resources/myFirstLambda.ts",
-            handler: "myFirstLambda.handler",
+            entry: "./lib/resources/index.ts",
+            handler: "lambda.handler",
             memorySize: 128,
             runtime: lambda.Runtime.NODEJS_LATEST,
             code: lambda.Code.fromAsset('resources'),
