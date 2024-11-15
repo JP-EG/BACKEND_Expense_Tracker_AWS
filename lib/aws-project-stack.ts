@@ -13,7 +13,7 @@ export class AwsProjectStack extends cdk.Stack {
         "myFirstLambda",
         {
             entry: "./lib/resources/myFirstLambda.ts",
-            handler: "lambda.handler",
+            handler: "myFirstLambda.handler",
             memorySize: 128,
             runtime: lambda.Runtime.NODEJS_LATEST,
             code: lambda.Code.fromAsset('resources'),
