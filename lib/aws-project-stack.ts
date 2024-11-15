@@ -8,21 +8,21 @@ export class AwsProjectStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // const nodejsFunction = new NodejsFunction(
-    //     this,
-    //     "lambda",
-    //     {
-    //         entry: "./lib/resources/lambda.ts",
-    //         handler: "lambda.handler",
-    //         memorySize: 128,
-    //         runtime: lambda.Runtime.NODEJS_LATEST,
-    //         code: lambda.Code.fromAsset('resources'),
-    //         bundling: {
-    //             externalModules: [
-    //                 'uuid'
-    //             ]
-    //       }
-    //     }
-    // )
+    const nodejsFunction = new NodejsFunction(
+        this,
+        "myFirstLambda",
+        {
+            entry: "./lib/resources/myFirstLambda.ts",
+            handler: "lambda.handler",
+            memorySize: 128,
+            runtime: lambda.Runtime.NODEJS_LATEST,
+            code: lambda.Code.fromAsset('resources'),
+            bundling: {
+                externalModules: [
+                    'uuid'
+                ]
+          }
+        }
+    )
   }
 }
