@@ -20,7 +20,7 @@ export class AwsProjectStack extends cdk.Stack {
         memorySize: 128,
         handler: 'index.handler',
         timeout: Duration.seconds(30),
-        code: new AssetCode(`${__dirname}../../../dist/myFirstLambda`),
+        code: new AssetCode(`./src/myFirstLambda`),
     });
   }
 }
