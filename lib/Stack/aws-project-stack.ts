@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
-import * as path from "node:path";
 import {AssetCode} from "aws-cdk-lib/aws-lambda";
 import {Duration} from "aws-cdk-lib";
 
