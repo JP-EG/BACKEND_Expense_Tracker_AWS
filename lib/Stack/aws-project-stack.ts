@@ -14,17 +14,26 @@ export class AwsProjectStack extends cdk.Stack {
   ) {
     super(scope, id, props);
 
-    const nodejsFunction = new NodejsFunction(this, "myFirstLambda", {
-        functionName: 'myFirstLambda',
+    const getPersonLambda = new NodejsFunction(this, "getPersonLambda", {
+        functionName: 'getPersonLambda',
         runtime: lambda.Runtime.NODEJS_LATEST,
         memorySize: 128,
         handler: 'index.handler',
         timeout: Duration.seconds(30),
-        code: new AssetCode(`./src/myFirstLambda`),
+        code: new AssetCode(`./dist/src/getPersonLambda`),
     });
 
-    const table = new dynamodb.Table(this, "dynamocdktable", {
-        tableName: "dynamocdktable",
+      const putPersonLambda = new NodejsFunction(this, "putPersonLambda", {
+          functionName: 'putPersonLambda',
+          runtime: lambda.Runtime.NODEJS_LATEST,
+          memorySize: 128,
+          handler: 'index.handler',
+          timeout: Duration.seconds(30),
+          code: new AssetCode(`./dist/src/putPersonLambda`),
+      });
+
+    const personTable = new dynamodb.Table(this, "personTable", {
+        tableName: "personTable",
         partitionKey: {
             name: "pk",
             type: dynamodb.AttributeType.STRING,
