@@ -19,15 +19,22 @@ export class AwsProjectStack extends cdk.Stack {
         functionName: 'getPersonLambda',
         runtime: lambda.Runtime.NODEJS_LATEST,
         memorySize: 128,
+        bundling: {
+            nodeModules: ['jsonpath', 'esprima']
+        },
         handler: 'index.handler',
         timeout: Duration.seconds(30),
         code: new AssetCode(`./src/getPersonLambda`),
+
     });
 
       const postPersonLambda = new NodejsFunction(this, "postPersonLambda", {
           functionName: 'postPersonLambda',
           runtime: lambda.Runtime.NODEJS_LATEST,
           memorySize: 128,
+          bundling: {
+              nodeModules: ['jsonpath', 'esprima']
+          },
           handler: 'index.handler',
           timeout: Duration.seconds(30),
           code: new AssetCode(`./src/postPersonLambda`),
