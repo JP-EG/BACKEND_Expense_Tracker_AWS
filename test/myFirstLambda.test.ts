@@ -9,13 +9,13 @@ describe('MyFirstLambda', () => {
 
     beforeEach(() => {
         stack = new cdk.Stack();
-        new NodejsFunction(stack, "myFirstLambda", {
-            functionName: 'myFirstLambda',
+        new NodejsFunction(stack, "getPersonLambda", {
+            functionName: 'getPersonLambda',
             runtime: lambda.Runtime.NODEJS_LATEST,
             memorySize: 128,
             handler: 'index.handler',
             timeout: Duration.seconds(30),
-            code: lambda.Code.fromAsset('./src/myFirstLambda'),
+            code: lambda.Code.fromAsset('./src/getPersonLambda'),
         });
     });
 
@@ -23,7 +23,7 @@ describe('MyFirstLambda', () => {
         const template = Template.fromStack(stack);
 
         template.hasResourceProperties('AWS::Lambda::Function', {
-            FunctionName: 'myFirstLambda',
+            FunctionName: 'getPersonLambda',
             Runtime: 'nodejs18.x',
             Handler: 'index.handler',
             MemorySize: 128,
