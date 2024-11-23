@@ -32,20 +32,45 @@ export default class PersonRepository extends RepositoryBase {
         this.tableName = tableName;
     }
 
-    public async get(name: string): Promise<Person | null> {
-        const getCommand: GetItemCommand = new GetItemCommand({
+    public async get(personName: string): Promise<Person | null> {
+        const queryCommand: QueryCommand = new QueryCommand({
             TableName: this.tableName,
-            Key: { name: { S: name }},
+            IndexName: "personName-index", // Use the GSI
+            KeyConditionExpression: "personName = :personName",
+            ExpressionAttributeValues: {
+                ":personName": { S: personName },
+            },
         });
 
-        const { Item }: GetItemCommandOutput = await this.dynamoDBClient.send(getCommand);
+        const { Items } = await this.dynamoDBClient.send(queryCommand);
 
-        if(Item){
-            const personDocument: PersonDocument = unmarshall(Item) as PersonDocument;
-
+        if(Items?.length){
+            const personDocument: PersonDocument = unmarshall(Items[0]) as PersonDocument;
             return PersonBuilder.fromDocument(personDocument);
         }
 
         return null;
+    }
+
+    public async put(person: Person): Promise<void> {
+        // Convert the Person object to a DynamoDB-compatible document
+        const personDocument: PersonDocument = PersonBuilder.toDocument(person);
+
+        const putCommand = new PutItemCommand({
+            TableName: this.tableName,
+            Item: marshall({
+                pk: `PERSON#${person.personName}`,
+                sk: `#METADATA`, // Include if a sort key is required
+                ...personDocument,
+            }),
+        });
+
+        try {
+            await this.dynamoDBClient.send(putCommand);
+            console.log(`Person saved successfully: ${JSON.stringify(person)}`);
+        } catch (error) {
+            console.error(`Failed to save person: ${error}`);
+            throw new Error('Error saving person to DynamoDB');
+        }
     }
 }

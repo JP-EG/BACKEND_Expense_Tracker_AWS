@@ -18,9 +18,7 @@ export abstract class BaseResponse {
 
     body: string;
 
-    protected constructor(status: HttpStatusCode, bodyProperties: BodyProperties) {
-        this.statusCode = status;
-
+    protected constructor(bodyProperties: BodyProperties) {
         this.body = JSON.stringify({
             message: bodyProperties.message,
             type: bodyProperties.type,

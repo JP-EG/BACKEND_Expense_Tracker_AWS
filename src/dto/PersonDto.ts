@@ -1,4 +1,4 @@
-export class Person  {
+export interface PersonDto {
     personName: string;
     personAge: string;
 }

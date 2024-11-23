@@ -7,6 +7,9 @@
       "es2017.object",
       "es2017.string",
     ],
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
     "declaration": true,
     "strict": true,
     "noImplicitAny": false,
@@ -24,6 +27,11 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
   },
+  "include": [
+    "src/**/*.ts", // Include all TypeScript files in your src folder
+    "bin",
+    "lib",
+  ],
   "exclude": [
     "node_modules",
     "cdk.out",

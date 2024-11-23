@@ -1,4 +1,3 @@
-import {HttpStatusCode} from "axios";
 import {BaseResponse} from "./BaseResponse";
 
 export class OkResponse extends BaseResponse {
@@ -7,7 +6,7 @@ export class OkResponse extends BaseResponse {
         requestId: string,
         person: object | string,
     ) {
-        super(HttpStatusCode.Ok, {
+        super({
             message: 'OK',
             type: 'https://development.JPEG/OK',
             title: 'The request has been processed successfully',

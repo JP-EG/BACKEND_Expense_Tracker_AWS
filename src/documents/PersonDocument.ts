@@ -1,4 +1,4 @@
 export interface PersonDocument {
-    name: string;
-    age: string;
+    personName: string;
+    personAge: string;
 }

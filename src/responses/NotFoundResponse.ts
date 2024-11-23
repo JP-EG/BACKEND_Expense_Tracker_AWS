@@ -1,4 +1,3 @@
-import {HttpStatusCode} from "axios";
 import {BaseResponse} from "./BaseResponse";
 
 export class NotFoundResponse extends BaseResponse {
@@ -6,7 +5,7 @@ export class NotFoundResponse extends BaseResponse {
         instance: string,
         requestId: string,
     ) {
-        super(HttpStatusCode.NotFound, {
+        super({
             message: 'NotFound',
             type: 'https://development.JPEG/NotFound',
             title: 'The request resource could not be found',
