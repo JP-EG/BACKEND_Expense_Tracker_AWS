@@ -5,7 +5,7 @@ export default class PersonBuilder {
     static fromDocument(source: PersonDocument): Person {
         const person = new Person();
 
-        person.personAge = source.personName;
+        person.personName = source.personName;
         person.personAge = source.personAge;
         return person;
     }

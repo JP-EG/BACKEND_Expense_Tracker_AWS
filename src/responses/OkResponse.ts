@@ -1,10 +1,11 @@
 import {BaseResponse} from "./BaseResponse";
+import {Person} from "../person/Person";
 
 export class OkResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
-        person: object | string,
+        person: Person,
     ) {
         super({
             message: 'OK',
