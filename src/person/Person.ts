@@ -1,4 +1,0 @@
-export class Person  {
-    personName: string;
-    personAge: string;
-}

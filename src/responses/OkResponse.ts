@@ -1,11 +1,11 @@
 import {BaseResponse} from "./BaseResponse";
-import {Person} from "../person/Person";
+import {Expense} from "../expense/Expense";
 
 export class OkResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
-        person: Person,
+        person: Expense,
     ) {
         super({
             message: 'OK',

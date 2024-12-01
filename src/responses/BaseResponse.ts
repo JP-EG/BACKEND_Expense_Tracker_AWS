@@ -1,6 +1,9 @@
-import { HttpStatusCode } from 'axios';
-
 type MessageType = object | string | null;
+type baseResponseHeaders = {
+    'Content-Type': string,
+    'Access-Control-Allow-Origin': string,
+    'Access-Control-Allow-Credentials': boolean
+}
 type BodyProperties = {
     message: MessageType;
     type: MessageType;
@@ -14,11 +17,15 @@ type BodyProperties = {
 }
 
 export abstract class BaseResponse {
-    statusCode: HttpStatusCode;
-
+    headers: baseResponseHeaders;
     body: string;
 
     protected constructor(bodyProperties: BodyProperties) {
+        this.headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+        };
         this.body = JSON.stringify({
             message: bodyProperties.message,
             type: bodyProperties.type,
