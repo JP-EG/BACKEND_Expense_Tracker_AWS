@@ -4,7 +4,6 @@ import {Construct} from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import {AssetCode} from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-import {ProjectionType} from "aws-cdk-lib/aws-dynamodb";
 import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
 import {TableViewer} from "cdk-dynamo-table-viewer";
 import {EndpointType, LambdaIntegration, MethodLoggingLevel, RestApi} from "aws-cdk-lib/aws-apigateway";
@@ -17,67 +16,112 @@ export class AwsProjectStack extends cdk.Stack {
   ) {
     super(scope, id, props);
 
-    const personTable = new dynamodb.Table(this, "personTable", {
-        tableName: "personTable",
-        partitionKey: {
-            name: "pk",
-            type: dynamodb.AttributeType.STRING,
-        },
-        sortKey:{
-            name:"sk",
-            type:dynamodb.AttributeType.STRING,
-        },
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        deletionProtection: false,
-        pointInTimeRecovery: true,
-        removalPolicy: RemovalPolicy.DESTROY,
-      });
-
-      // Add a Global Secondary Index (GSI) for querying by name
-      personTable.addGlobalSecondaryIndex({
-          indexName: "personName-index",
+      const expenseTable = new dynamodb.Table(this, "ExpenseTable", {
+          tableName: "ExpenseTable",
           partitionKey: {
-              name: "personName",
+              name: "userId", // Each user will have their own partition
               type: dynamodb.AttributeType.STRING,
           },
-          projectionType: ProjectionType.ALL,
+          sortKey: {
+              name: "expenseId", // Unique identifier for each expense
+              type: dynamodb.AttributeType.STRING,
+          },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+          deletionProtection: false,
+          pointInTimeRecovery: true,
+          removalPolicy: RemovalPolicy.DESTROY,
       });
 
-      const getPersonLambda = new NodejsFunction(this, "getPersonLambda", {
-          functionName: 'getPersonLambda',
+      const budgetTable = new dynamodb.Table(this, "BudgetTable", {
+          tableName: "BudgetTable",
+          partitionKey: {
+              name: "userId",
+              type: dynamodb.AttributeType.STRING,
+          },
+          sortKey: {
+              name: "category",
+              type: dynamodb.AttributeType.STRING,
+          },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+          deletionProtection: false,
+          pointInTimeRecovery: true,
+          removalPolicy: RemovalPolicy.DESTROY,
+      });
+
+
+      expenseTable.addGlobalSecondaryIndex({
+          indexName: "expensesByDate-index",
+          partitionKey: {
+              name: "userId", // Keep the partition key as userId
+              type: dynamodb.AttributeType.STRING,
+          },
+          sortKey: {
+              name: "date", // Sort by the expense date
+              type: dynamodb.AttributeType.STRING,
+          },
+          projectionType: dynamodb.ProjectionType.ALL,
+      });
+
+      expenseTable.addGlobalSecondaryIndex({
+         indexName: 'userId-index',
+         partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+         projectionType: dynamodb.ProjectionType.ALL,
+      });
+
+      expenseTable.addGlobalSecondaryIndex({
+          indexName: 'expenseId-index',
+          partitionKey: { name: "expenseId", type: dynamodb.AttributeType.STRING },
+          projectionType: dynamodb.ProjectionType.ALL,
+      });
+
+      expenseTable.addGlobalSecondaryIndex({
+          indexName: 'userId-expenseId-index',
+          partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+          sortKey: { name: "expenseId", type: dynamodb.AttributeType.STRING },
+          projectionType: dynamodb.ProjectionType.ALL,
+      });
+
+      expenseTable.addGlobalSecondaryIndex({
+          indexName: "expensesByCategory-index",
+          partitionKey: {
+              name: "userId", // Keep the partition key as userId
+              type: dynamodb.AttributeType.STRING,
+          },
+          sortKey: {
+              name: "category", // Sort by the expense category
+              type: dynamodb.AttributeType.STRING,
+          },
+          projectionType: dynamodb.ProjectionType.ALL,
+      });
+
+      const getExpensesLambda = new NodejsFunction(this, "getExpensesLambda", {
+          functionName: 'getExpensesLambda',
           runtime: lambda.Runtime.NODEJS_LATEST,
           memorySize: 128,
-          handler: 'src/getPersonLambda/index.handler', // Same structure but points to transpiled code
-          bundling: {
-              nodeModules: ['axios'], // Include axios here
-          },
+          handler: 'src/getExpensesLambda/index.handler', // Update handler path
           timeout: Duration.seconds(30),
-          code: new AssetCode('dist'), // Point to the transpiled output directory
+          code: new AssetCode('dist'),
           environment: {
-              PERSON_TABLE_NAME: personTable.tableName,
-              PERSON_TTL_TABLE: '3600',
+              EXPENSE_TABLE_NAME: expenseTable.tableName,
+              EXPENSE_TTL_TABLE: '3600',
           },
       });
 
-      const putPersonLambda = new NodejsFunction(this, "putPersonLambda", {
-          functionName: 'putPersonLambda',
+      const putExpenseLambda = new NodejsFunction(this, "putExpenseLambda", {
+          functionName: 'putExpenseLambda',
           runtime: lambda.Runtime.NODEJS_LATEST,
           memorySize: 128,
-          handler: 'src/putPersonLambda/index.handler', // Same structure but points to transpiled code
-          bundling: {
-              nodeModules: ['axios'], // Include axios here
-          },
+          handler: 'src/putExpenseLambda/index.handler', // Update handler path
           timeout: Duration.seconds(30),
-          code: new AssetCode('dist'), // Point to the transpiled output directory
+          code: new AssetCode('dist'), // Ensure transpiled code is in 'dist'
           environment: {
-              PERSON_TABLE_NAME: personTable.tableName,
-              PERSON_TTL_TABLE: '3600',
+              EXPENSE_TABLE_NAME: expenseTable.tableName,
+              EXPENSE_TTL_TABLE: '3600',
           },
       });
 
-
-      personTable.grantReadWriteData(getPersonLambda);
-      personTable.grantReadWriteData(putPersonLambda);
+      expenseTable.grantReadData(getExpensesLambda);
+      expenseTable.grantWriteData(putExpenseLambda);
 
       const apiGateway = new RestApi(this, 'JPEG-API', {
           restApiName: 'JPEG-API',
@@ -91,16 +135,16 @@ export class AwsProjectStack extends cdk.Stack {
           },
       });
 
-      const person = apiGateway.root.addResource('person');
+      const expense = apiGateway.root.addResource('expense');
+      expense.addMethod('GET', new LambdaIntegration(getExpensesLambda));
 
-      person.addMethod('GET', new LambdaIntegration(getPersonLambda));
 
-      const postPerson = apiGateway.root.addResource('put-person');
-      postPerson.addMethod('PUT', new LambdaIntegration(putPersonLambda));
+      const putExpense = apiGateway.root.addResource('add-expense');
+      putExpense.addMethod('PUT', new LambdaIntegration(putExpenseLambda));
 
-      new TableViewer(this, 'ViewPersonCounter', {
-          title: 'Person Table',
-          table: personTable,
-      })
+      new TableViewer(this, 'ViewExpenseTable', {
+          title: 'Expense Table',
+          table: expenseTable,
+      });
   }
 }

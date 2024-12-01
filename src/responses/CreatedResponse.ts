@@ -1,11 +1,11 @@
 import { BaseResponse } from "./BaseResponse";
-import {Person} from "../person/Person";
+import {Expense} from "../expense/Expense";
 
 export class CreatedResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
-        value: Person, // The resource created or additional data to return
+        value: Expense, // The resource created or additional data to return
     ) {
         super({
             message: 'Created',
