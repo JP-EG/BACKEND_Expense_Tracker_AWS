@@ -5,7 +5,7 @@ export class OkResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
-        person: Expense,
+        expense?: Expense,
     ) {
         super({
             message: 'OK',
@@ -16,7 +16,7 @@ export class OkResponse extends BaseResponse {
             instance,
             source: [],
             requestId,
-            value: person,
+            value: expense || null,
         });
     }
 }

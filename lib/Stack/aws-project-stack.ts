@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import {Duration, RemovalPolicy} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -120,8 +121,31 @@ export class AwsProjectStack extends cdk.Stack {
           },
       });
 
+      const deleteExpenseLambda = new NodejsFunction(this, 'deleteExpenseLambda', {
+          functionName: 'deleteExpenseLambda',
+          runtime: lambda.Runtime.NODEJS_LATEST,
+          memorySize: 128,
+          handler: 'src/deleteExpenseLambda/index.handler', // Update handler path
+          timeout: Duration.seconds(30),
+          code: new AssetCode('dist'), // Ensure transpiled code is in 'dist'
+          environment: {
+              EXPENSE_TABLE_NAME: expenseTable.tableName,
+              EXPENSE_TTL_TABLE: '3600',
+          },
+      });
+
       expenseTable.grantReadData(getExpensesLambda);
       expenseTable.grantWriteData(putExpenseLambda);
+
+      deleteExpenseLambda.addToRolePolicy(
+          new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: ['dynamodb:DeleteItem'],
+              resources: [
+                  `arn:aws:dynamodb:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:table/${expenseTable.tableName}`
+              ],
+          })
+      );
 
       const apiGateway = new RestApi(this, 'JPEG-API', {
           restApiName: 'JPEG-API',
@@ -138,9 +162,11 @@ export class AwsProjectStack extends cdk.Stack {
       const expense = apiGateway.root.addResource('expense');
       expense.addMethod('GET', new LambdaIntegration(getExpensesLambda));
 
-
       const putExpense = apiGateway.root.addResource('add-expense');
       putExpense.addMethod('PUT', new LambdaIntegration(putExpenseLambda));
+
+      const deleteExpense = apiGateway.root.addResource('delete-expense');
+      deleteExpense.addMethod('DELETE', new LambdaIntegration(deleteExpenseLambda));
 
       new TableViewer(this, 'ViewExpenseTable', {
           title: 'Expense Table',

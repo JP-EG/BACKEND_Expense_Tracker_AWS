@@ -1,7 +1,7 @@
 import {
     DynamoDBClient,
     QueryCommand,
-    PutItemCommand, QueryCommandInput,
+    PutItemCommand, DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { RepositoryBase } from "./RepositoryBase";
@@ -28,6 +28,24 @@ export default class ExpenseRepository extends RepositoryBase {
 
         super(dynamoDBClient, timeToLive);
         this.tableName = tableName;
+    }
+
+    public async delete(userId: string, expenseId: string): Promise<void> {
+        const deleteCommand = new DeleteItemCommand({
+            TableName: this.tableName,
+            Key: marshall({
+                userId: `${userId}`,       // Partition key
+                expenseId: `${expenseId}`, // Sort key
+            }),
+        });
+
+        try {
+            await this.dynamoDBClient.send(deleteCommand);
+            console.log(`Expense deleted successfully: userId=${userId}, expenseId=${expenseId}`);
+        } catch (error) {
+            console.error(`Failed to delete expense: userId=${userId}, expenseId=${expenseId}`, error);
+            throw new Error('Error deleting expense from DynamoDB');
+        }
     }
 
     // Fetch expenses by userId and optional filters
