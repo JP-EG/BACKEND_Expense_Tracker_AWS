@@ -31,11 +31,9 @@ export const handler = async (event: HandlerEvent, context: HandlerContext) => {
             return response;
         }
 
-        // Parse the body if it's a JSON string
         const expenseData: Expense = JSON.parse(event.body);
         console.log(`Received expense data: ${JSON.stringify(expenseData)}`);
 
-        // Check if required fields are present in the expenseData
         if (!expenseData.userId || !expenseData.expenseId || !expenseData.amount || !expenseData.category || !expenseData.date) {
             const message = `Missing required fields: userId, expenseId, amount, category, and date.`;
             console.log(message);
@@ -45,7 +43,6 @@ export const handler = async (event: HandlerEvent, context: HandlerContext) => {
             return response;
         }
 
-        // Save the expense data
         await expenseService.putExpense(expenseData);
 
         console.log(`COMPLETE`);
