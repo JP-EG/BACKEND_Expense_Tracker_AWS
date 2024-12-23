@@ -1,5 +1,7 @@
+import { StatusCodes } from "http-status-codes";
+
 type MessageType = object | string | null;
-type baseResponseHeaders = {
+type BaseResponseHeaders = {
     'Content-Type': string,
     'Access-Control-Allow-Origin': string,
     'Access-Control-Allow-Credentials': boolean
@@ -17,10 +19,13 @@ type BodyProperties = {
 }
 
 export abstract class BaseResponse {
-    headers: baseResponseHeaders;
+    statusCode: StatusCodes;
+    headers: BaseResponseHeaders;
+
     body: string;
 
-    protected constructor(bodyProperties: BodyProperties) {
+    protected constructor(status: StatusCodes, bodyProperties: BodyProperties) {
+        this.statusCode = status;
         this.headers = {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',

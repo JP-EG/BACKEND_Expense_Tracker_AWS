@@ -1,13 +1,13 @@
+import { StatusCodes } from "http-status-codes";
 import {BaseResponse} from "./BaseResponse";
-import {Expense} from "../expense/Expense";
 
 export class OkResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
-        expense?: Expense,
+        expense: object[] | null,
     ) {
-        super({
+        super(StatusCodes.OK, {
             message: 'OK',
             type: 'https://development.JPEG/OK',
             title: 'The request has been processed successfully',
@@ -16,7 +16,7 @@ export class OkResponse extends BaseResponse {
             instance,
             source: [],
             requestId,
-            value: expense || null,
+            value: expense,
         });
     }
 }

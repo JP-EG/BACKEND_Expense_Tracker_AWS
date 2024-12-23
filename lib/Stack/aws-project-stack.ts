@@ -20,11 +20,11 @@ export class AwsProjectStack extends cdk.Stack {
       const expenseTable = new dynamodb.Table(this, "ExpenseTable", {
           tableName: "ExpenseTable",
           partitionKey: {
-              name: "userId", // Each user will have their own partition
+              name: "userId",
               type: dynamodb.AttributeType.STRING,
           },
           sortKey: {
-              name: "expenseId", // Unique identifier for each expense
+              name: "expenseId",
               type: dynamodb.AttributeType.STRING,
           },
           billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -32,8 +32,7 @@ export class AwsProjectStack extends cdk.Stack {
           pointInTimeRecovery: true,
           removalPolicy: RemovalPolicy.DESTROY,
       });
-
-      const budgetTable = new dynamodb.Table(this, "BudgetTable", {
+      new dynamodb.Table(this, "BudgetTable", {
           tableName: "BudgetTable",
           partitionKey: {
               name: "userId",
@@ -48,16 +47,14 @@ export class AwsProjectStack extends cdk.Stack {
           pointInTimeRecovery: true,
           removalPolicy: RemovalPolicy.DESTROY,
       });
-
-
       expenseTable.addGlobalSecondaryIndex({
           indexName: "expensesByDate-index",
           partitionKey: {
-              name: "userId", // Keep the partition key as userId
+              name: "userId",
               type: dynamodb.AttributeType.STRING,
           },
           sortKey: {
-              name: "date", // Sort by the expense date
+              name: "date",
               type: dynamodb.AttributeType.STRING,
           },
           projectionType: dynamodb.ProjectionType.ALL,
@@ -85,11 +82,11 @@ export class AwsProjectStack extends cdk.Stack {
       expenseTable.addGlobalSecondaryIndex({
           indexName: "expensesByCategory-index",
           partitionKey: {
-              name: "userId", // Keep the partition key as userId
+              name: "userId",
               type: dynamodb.AttributeType.STRING,
           },
           sortKey: {
-              name: "category", // Sort by the expense category
+              name: "category",
               type: dynamodb.AttributeType.STRING,
           },
           projectionType: dynamodb.ProjectionType.ALL,
@@ -99,35 +96,48 @@ export class AwsProjectStack extends cdk.Stack {
           functionName: 'getExpensesLambda',
           runtime: lambda.Runtime.NODEJS_LATEST,
           memorySize: 128,
-          handler: 'src/getExpensesLambda/index.handler', // Update handler path
+          handler: 'src/getExpensesLambda/index.handler',
           timeout: Duration.seconds(30),
-          code: new AssetCode('dist'),
+          code: new AssetCode('dist/getExpensesLambda'),
           environment: {
               EXPENSE_TABLE_NAME: expenseTable.tableName,
               EXPENSE_TTL_TABLE: '3600',
           },
       });
 
-      const putExpenseLambda = new NodejsFunction(this, "putExpenseLambda", {
-          functionName: 'putExpenseLambda',
+      const postExpenseLambda = new NodejsFunction(this, "postExpenseLambda", {
+          functionName: 'postExpenseLambda',
           runtime: lambda.Runtime.NODEJS_LATEST,
           memorySize: 128,
-          handler: 'src/putExpenseLambda/index.handler', // Update handler path
+          handler: 'src/postExpenseLambda/index.handler',
           timeout: Duration.seconds(30),
-          code: new AssetCode('dist'), // Ensure transpiled code is in 'dist'
+          code: new AssetCode('dist/postExpenseLambda'),
           environment: {
               EXPENSE_TABLE_NAME: expenseTable.tableName,
               EXPENSE_TTL_TABLE: '3600',
           },
+      });
+
+      const putExpenselambda = new NodejsFunction(this, "putExpenseLambda", {
+         functionName: 'putExpenseLambda',
+         runtime: lambda.Runtime.NODEJS_LATEST,
+         memorySize: 128,
+         handler: 'src/putExpenseLambda/index.handler',
+         timeout: Duration.seconds(30),
+         code: new AssetCode('dist/putExpenseLambda'),
+         environment: {
+             EXPENSE_TABLE_NAME: expenseTable.tableName,
+             EXPENSE_TTL_TABLE: '3600',
+         }
       });
 
       const deleteExpenseLambda = new NodejsFunction(this, 'deleteExpenseLambda', {
           functionName: 'deleteExpenseLambda',
           runtime: lambda.Runtime.NODEJS_LATEST,
           memorySize: 128,
-          handler: 'src/deleteExpenseLambda/index.handler', // Update handler path
+          handler: 'src/deleteExpenseLambda/index.handler',
           timeout: Duration.seconds(30),
-          code: new AssetCode('dist'), // Ensure transpiled code is in 'dist'
+          code: new AssetCode('dist/deleteExpenseLambda'),
           environment: {
               EXPENSE_TABLE_NAME: expenseTable.tableName,
               EXPENSE_TTL_TABLE: '3600',
@@ -135,7 +145,8 @@ export class AwsProjectStack extends cdk.Stack {
       });
 
       expenseTable.grantReadData(getExpensesLambda);
-      expenseTable.grantWriteData(putExpenseLambda);
+      expenseTable.grantWriteData(postExpenseLambda);
+      expenseTable.grantReadWriteData(putExpenselambda);
 
       deleteExpenseLambda.addToRolePolicy(
           new iam.PolicyStatement({
@@ -162,8 +173,11 @@ export class AwsProjectStack extends cdk.Stack {
       const expense = apiGateway.root.addResource('expense');
       expense.addMethod('GET', new LambdaIntegration(getExpensesLambda));
 
-      const putExpense = apiGateway.root.addResource('add-expense');
-      putExpense.addMethod('PUT', new LambdaIntegration(putExpenseLambda));
+      const postExpense = apiGateway.root.addResource('add-expense');
+      postExpense.addMethod('POST', new LambdaIntegration(postExpenseLambda));
+
+      const putExpense = apiGateway.root.addResource('update-expense');
+      putExpense.addMethod('PUT', new LambdaIntegration(putExpenselambda));
 
       const deleteExpense = apiGateway.root.addResource('delete-expense');
       deleteExpense.addMethod('DELETE', new LambdaIntegration(deleteExpenseLambda));
