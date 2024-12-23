@@ -1,16 +1,20 @@
 import {
     DynamoDBClient,
     QueryCommand,
-    PutItemCommand, DeleteItemCommand,
+    PutItemCommand,
+    DeleteItemCommand,
+    QueryCommandInput,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { RepositoryBase } from "./RepositoryBase";
-import {Expense} from "../expense/Expense";
-import {ExpenseDocument} from "../documents/ExpenseDocument";
+import { Expense } from "../expense/Expense";
+import { ExpenseDocument } from "../documents/ExpenseDocument";
 import ExpenseBuilder from "../builder/ExpenseBuilder";
+import {Logger} from "../common/Logger";
 
 export default class ExpenseRepository extends RepositoryBase {
     private readonly tableName: string | undefined;
+    private readonly logger: Logger;
 
     constructor(
         dynamoDBClient: DynamoDBClient = new DynamoDBClient(),
@@ -28,69 +32,113 @@ export default class ExpenseRepository extends RepositoryBase {
 
         super(dynamoDBClient, timeToLive);
         this.tableName = tableName;
+        this.logger = new Logger('ExpenseRepository');
     }
 
     public async delete(userId: string, expenseId: string): Promise<void> {
         const deleteCommand = new DeleteItemCommand({
             TableName: this.tableName,
             Key: marshall({
-                userId: `${userId}`,       // Partition key
-                expenseId: `${expenseId}`, // Sort key
+                userId: `${userId}`,
+                expenseId: `${expenseId}`,
             }),
         });
 
         try {
             await this.dynamoDBClient.send(deleteCommand);
-            console.log(`Expense deleted successfully: userId=${userId}, expenseId=${expenseId}`);
+            this.logger.info(`Expense deleted successfully: userId=${userId}, expenseId=${expenseId}`);
         } catch (error) {
-            console.error(`Failed to delete expense: userId=${userId}, expenseId=${expenseId}`, error);
+            this.logger.error(error, `Failed to delete expense: userId=${userId}, expenseId=${expenseId}`);
             throw new Error('Error deleting expense from DynamoDB');
         }
     }
 
-    // Fetch expenses by userId and optional filters
-    public async get(userId: string): Promise<Expense[] | null> {
-        const baseParams = {
+    public async get(userId: string, expenseId?: string): Promise<Expense[] | null> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const baseParams: Record<string, any> = {
             TableName: this.tableName,
-            IndexName: "userId-index",
+            IndexName: "userId-expenseId-index",
             KeyConditionExpression: "userId = :userId",
             ExpressionAttributeValues: {
                 ":userId": { S: userId },
             },
         };
 
-        console.log("Query Params:", baseParams);
+        if (expenseId) {
+            baseParams.KeyConditionExpression += " AND expenseId = :expenseId";
+            baseParams.ExpressionAttributeValues[":expenseId"] = { S: expenseId };
+        }
 
-        const queryCommand = new QueryCommand(baseParams);
+        this.logger.info("Query Params: " + JSON.stringify(baseParams, null, 2));
 
-        const { Items } = await this.dynamoDBClient.send(queryCommand);
+        try {
+            const queryCommand = new QueryCommand(<QueryCommandInput>baseParams);
+            const { Items } = await this.dynamoDBClient.send(queryCommand);
 
-        if (Items) {
-            return Items.map((item) => ExpenseBuilder.fromDocument(unmarshall(item) as ExpenseDocument));
+            if (Items) {
+                return Items.map((item) =>
+                    ExpenseBuilder.fromDocument(unmarshall(item) as ExpenseDocument)
+                );
+            }
+        } catch (error) {
+            const errorMessage = "Error querying expenses:";
+            this.logger.error(error, errorMessage);
+            throw error;
         }
 
         return null;
     }
 
-    // Save a new expense
-    public async put(expense: Expense): Promise<void> {
-        // Convert the Expense object to a DynamoDB-compatible document
+    public async update(userId: string, expenseId: string, updatedExpense: Partial<Expense>): Promise<void> {
+        try {
+            const currentExpenses = await this.get(userId, expenseId);
+            if (!currentExpenses || currentExpenses.length === 0) {
+                throw new Error(`Expense not found: userId=${userId}, expenseId=${expenseId}`);
+            }
+
+            const currentExpense = currentExpenses[0];
+
+            const updatedExpenseData: Expense = {
+                ...currentExpense,
+                ...updatedExpense,
+            };
+
+            const expenseDocument: ExpenseDocument = ExpenseBuilder.toDocument(updatedExpenseData);
+
+            const putCommand = new PutItemCommand({
+                TableName: this.tableName,
+                Item: marshall({
+                    pk: `USER#${userId}`,
+                    sk: `EXPENSE#${expenseId}`,
+                    ...expenseDocument,
+                }),
+            });
+
+            await this.dynamoDBClient.send(putCommand);
+            this.logger.info(`Expense updated successfully: userId=${userId}, expenseId=${expenseId}`);
+        } catch (error) {
+            this.logger.error(error, `Failed to update expense: userId=${userId}, expenseId=${expenseId}`);
+            throw new Error('Error updating expense in DynamoDB');
+        }
+    }
+
+    public async post(expense: Expense): Promise<void> {
         const expenseDocument: ExpenseDocument = ExpenseBuilder.toDocument(expense);
 
         const putCommand = new PutItemCommand({
             TableName: this.tableName,
             Item: marshall({
-                pk: `USER#${expense.userId}`,        // Partition key
-                sk: `EXPENSE#${expense.expenseId}`, // Sort key
+                pk: `USER#${expense.userId}`,
+                sk: `EXPENSE#${expense.expenseId}`,
                 ...expenseDocument,
             }),
         });
 
         try {
             await this.dynamoDBClient.send(putCommand);
-            console.log(`Expense saved successfully: ${JSON.stringify(expense)}`);
+            this.logger.info(`Expense saved successfully: ${JSON.stringify(expense)}`);
         } catch (error) {
-            console.error(`Failed to save expense: ${error}`);
+            this.logger.error(error, 'Failed to save expense');
             throw new Error('Error saving expense to DynamoDB');
         }
     }

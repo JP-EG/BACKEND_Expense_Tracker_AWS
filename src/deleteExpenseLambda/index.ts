@@ -3,8 +3,8 @@ import { NotFoundResponse } from "../responses/NotFoundResponse";
 import { OkResponse } from "../responses/OkResponse";
 import { InternalServerErrorResponse } from "../responses/InternalServerErrorResponse";
 import ExpenseService from "../service/ExpenseService";
+import {Logger} from "../common/Logger";
 
-// Modify HandlerEvent type to include both userId and expenseId in queryStringParameters
 export type HandlerEvent = Pick<APIGatewayProxyEvent, 'queryStringParameters'> & {
     queryStringParameters: {
         userId: string;
@@ -14,39 +14,36 @@ export type HandlerEvent = Pick<APIGatewayProxyEvent, 'queryStringParameters'> &
 
 export type HandlerContext = Pick<Context, 'awsRequestId'>;
 
-console.log('DELETE_EXPENSE_LAMBDA');
-
-// Initialize the ExpenseService instance
+const logger = new Logger('DELETE_EXPENSE_LAMBDA');
 const expenseService = new ExpenseService();
 
 export const handler = async (event: HandlerEvent, context: Context) => {
-    console.log('DELETE_EXPENSE_LAMBDA_HANDLER');
+    logger.info('DELETE_EXPENSE_LAMBDA_HANDLER');
 
     const { userId, expenseId } = event.queryStringParameters;
     const requestId = context.awsRequestId;
 
-    console.log(`START: Deleting expense for userId=${userId}, expenseId=${expenseId}`);
+    logger.info(`START: Deleting expense`, { userId, expenseId, requestId });
 
     try {
-        // Validate inputs
         if (!userId || !expenseId) {
-            console.error(`Missing required parameters: userId=${userId}, expenseId=${expenseId}`);
+            logger.warn(`Missing required parameters`, { userId, expenseId, requestId });
             return new NotFoundResponse(`Missing userId or expenseId`, requestId);
         }
 
-        // Attempt to delete the expense
         await expenseService.delete(userId, expenseId);
 
-        // Return Ok response after successful deletion
-        console.log(`Expense deleted successfully: userId=${userId}, expenseId=${expenseId}`);
-        return new OkResponse(`Expense deleted successfully`, requestId);
-
+        logger.info(`Expense deleted successfully`, { userId, expenseId, requestId });
+        return new OkResponse(`Expense deleted successfully`, requestId, null);
     } catch (error) {
-        console.error(`Error deleting expense for userId=${userId}, expenseId=${expenseId}`, error);
+        logger.error({
+            message: `Error deleting expense`,
+            context: { userId, expenseId, requestId },
+            error,
+        });
 
-        // Return Internal Server Error response in case of failure
         const response = new InternalServerErrorResponse(`Failed to delete expense`, requestId);
-        console.log(`COMPLETE ${JSON.stringify(response)}`);
+        logger.info(`COMPLETE`, { response });
         return response;
     }
 };

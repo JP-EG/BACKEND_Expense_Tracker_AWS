@@ -3,54 +3,54 @@ import { NotFoundResponse } from "../responses/NotFoundResponse";
 import { OkResponse } from "../responses/OkResponse";
 import { InternalServerErrorResponse } from "../responses/InternalServerErrorResponse";
 import ExpenseService from "../service/ExpenseService";
+import {Logger} from "../common/Logger";
 
-// Modify HandlerEvent type to include only userId in queryStringParameters
 export type HandlerEvent = Pick<APIGatewayProxyEvent, 'queryStringParameters'> & {
     queryStringParameters: {
         userId: string;
+        expenseId?: string;
     }
 };
 
 export type HandlerContext = Pick<Context, 'awsRequestId'>;
 
-console.log('GET_EXPENSE_LAMBDA');
-
-// Initialize the ExpenseService instance
+const logger = new Logger('GET_EXPENSE_LAMBDA');
 const expenseService = new ExpenseService();
 
 export const handler = async (event: HandlerEvent, context: Context) => {
-    console.log('GET_EXPENSE_LAMBDA_HANDLER');
+    logger.info('GET_EXPENSE_LAMBDA_HANDLER');
 
-    const { userId } = event.queryStringParameters;
-    console.log(`START: Fetching expenses for userId ${userId}`);
+    const { userId, expenseId } = event.queryStringParameters;
     const requestId = context.awsRequestId;
 
-    try {
-        // Fetch expenses for the given userId
-        const expenses = await expenseService.get(userId);
+    logger.info(`START: Fetching expenses`, { userId, expenseId, requestId });
 
-        console.log(`Expenses from DynamoDB: ${JSON.stringify(expenses)}`);
+    try {
+        const expenses = await expenseService.get(userId, expenseId);
+
+        logger.info(`Expenses retrieved from DynamoDB`, { expenses });
 
         if (!expenses || (Array.isArray(expenses) && expenses.length === 0)) {
             const message = `No expenses found for user ${userId}`;
-            console.log(message);
+            logger.warn(message, { userId, expenseId, requestId });
 
-            // Return Not Found response if no expenses are found
             const response = new NotFoundResponse(`expenses`, requestId);
-            console.log(`COMPLETE ${JSON.stringify(response)}`);
+            logger.info(`COMPLETE`, { response });
             return response;
         }
 
-        // Return Ok response if expenses are found
-        console.log('COMPLETE');
+        logger.info(`Expenses found`, { count: expenses.length, requestId });
         return new OkResponse(`expenses`, requestId, expenses);
 
     } catch (error) {
-        console.error(error);
+        logger.error({
+            message: `Error fetching expenses`,
+            context: { userId, expenseId, requestId },
+            error,
+        });
 
-        // Return Internal Server Error response if there's an issue
         const response = new InternalServerErrorResponse(`expenses`, requestId);
-        console.log(`COMPLETE ${JSON.stringify(response)}`);
+        logger.info(`COMPLETE`, { response });
         return response;
     }
 };

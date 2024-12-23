@@ -1,13 +1,14 @@
 import { BaseResponse } from "./BaseResponse";
 import {Expense} from "../expense/Expense";
+import {StatusCodes} from "http-status-codes";
 
 export class CreatedResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
-        value: Expense, // The resource created or additional data to return
+        value: Expense,
     ) {
-        super({
+        super(StatusCodes.CREATED, {
             message: 'Created',
             type: 'https://development.JPEG/Created',
             title: 'The resource was successfully created.',
@@ -16,7 +17,7 @@ export class CreatedResponse extends BaseResponse {
             instance,
             source: [],
             requestId,
-            value, // Return the created resource or relevant data
+            value,
         });
     }
 }

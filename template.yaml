@@ -57,7 +57,7 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: AwsProjectStack/putExpenseLambda/ServiceRole/Resource
+      aws:cdk:path: AwsProjectStack/postExpenseLambda/ServiceRole/Resource
   postPersonLambdaB145B4EF:
     Type: AWS::Lambda::Function
     Properties:
@@ -65,7 +65,7 @@ Resources:
         S3Bucket:
           Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: f381cc5736e7974cf7fdef6a4a710a48272410233d1fd9f04cd7a4c14d6e669e.zip
-      FunctionName: putExpenseLambda
+      FunctionName: postExpenseLambda
       Handler: index.handler
       MemorySize: 128
       Role:
@@ -77,7 +77,7 @@ Resources:
     DependsOn:
       - postPersonLambdaServiceRole99163AA0
     Metadata:
-      aws:cdk:path: AwsProjectStack/putExpenseLambda/Resource
+      aws:cdk:path: AwsProjectStack/postExpenseLambda/Resource
       aws:asset:path: asset.f381cc5736e7974cf7fdef6a4a710a48272410233d1fd9f04cd7a4c14d6e669e
       aws:asset:is-bundled: false
       aws:asset:property: Code

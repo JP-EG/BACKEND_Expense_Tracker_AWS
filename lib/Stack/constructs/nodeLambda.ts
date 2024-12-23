@@ -3,7 +3,7 @@ import {Duration} from "aws-cdk-lib";
 import {Construct} from "constructs";
 
 type NodeLambdaProps = {
-    name: string;
+    name: string,
     lambdaSourcePath: string;
     environment?: { [p: string]: string | undefined };
 }

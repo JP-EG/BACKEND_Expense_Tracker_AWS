@@ -1,16 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2018",
     "module": "commonjs",
-    "lib": [
-      "es2016",
-      "es2017.object",
-      "es2017.string",
-    ],
-    "outDir": "./dist",
-    "moduleResolution": "node",
+    "lib": ["es2016", "es2017.object", "es2017.string",],
     "skipLibCheck": true,
-    "declaration": true,
+    "declaration": false,
     "strict": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
@@ -27,14 +21,5 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
   },
-  "include": [
-    "src/**/*.ts", // Include all TypeScript files in your src folder
-    "bin",
-    "lib",
-  ],
-  "exclude": [
-    "node_modules",
-    "cdk.out",
-    "test",
-  ]
+  "exclude": ["cdk.out", "test"],
 }

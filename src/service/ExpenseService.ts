@@ -1,17 +1,19 @@
 import ExpenseRepository from "../repository/ExpenseRepository";
-import {Expense} from "../expense/Expense";
-import {ExpenseDtoBuilder} from "../dto/ExpenseDtoBuilder";
-
+import { Expense } from "../expense/Expense";
+import { ExpenseDtoBuilder } from "../dto/ExpenseDtoBuilder";
+import { ExpenseDto } from "../dto/ExpenseDto";
+import {Logger} from "../common/Logger";
 
 export default class ExpenseService {
     private readonly expenseRepository: ExpenseRepository;
+    private readonly logger: Logger;
 
     constructor(expenseRepository: ExpenseRepository = new ExpenseRepository()) {
         this.expenseRepository = expenseRepository;
+        this.logger = new Logger('ExpenseService');  // Initialize the logger with the class name
     }
 
-    // Create a new expense and save it to the repository
-    public async putExpense(expenseData: {
+    public async post(expenseData: {
         userId: string;
         expenseId: string;
         amount: number;
@@ -24,7 +26,6 @@ export default class ExpenseService {
         tags?: string[];
     }): Promise<void> {
         try {
-            // Validate required fields
             if (!expenseData.userId || !expenseData.expenseId || !expenseData.amount || !expenseData.category || !expenseData.date) {
                 throw new Error('Missing required fields: userId, expenseId, amount, category, or date.');
             }
@@ -41,47 +42,64 @@ export default class ExpenseService {
             expense.location = expenseData.location;
             expense.tags = expenseData.tags;
 
-            // Automatically set timestamps
             const now = new Date().toISOString();
             expense.createdAt = now;
             expense.updatedAt = now;
 
-            // Save the expense to the repository
-            await this.expenseRepository.put(expense);
+            await this.expenseRepository.post(expense);
+            this.logger.info(`Expense created successfully: ${JSON.stringify(expense)}`);
         } catch (error) {
-            console.error('Failed to put expense:', error);
+            this.logger.error(`Failed to post expense: ${error}`);
             throw new Error('Unable to save the expense. Please try again.');
         }
     }
 
     public async delete(userId: string, expenseId: string): Promise<void> {
         try {
-            // Validate required fields
             if (!userId || !expenseId) {
                 throw new Error('Missing required fields: userId or expenseId.');
             }
 
-            // Call the repository's delete method
             await this.expenseRepository.delete(userId, expenseId);
-            console.log(`Expense deleted successfully: userId=${userId}, expenseId=${expenseId}`);
+            this.logger.info(`Expense deleted successfully: userId=${userId}, expenseId=${expenseId}`);
         } catch (error) {
-            console.error(`Failed to delete expense: userId=${userId}, expenseId=${expenseId}`, error);
+            const errorMessage = `Failed to delete expense: userId=${userId}, expenseId=${expenseId}`;
+            this.logger.error(error, errorMessage);
             throw new Error('Unable to delete the expense. Please try again.');
         }
     }
 
+    public async update(userId: string, expenseId: string, updatedFields: Partial<Expense>): Promise<void> {
+        try {
+            if (!userId || !expenseId) {
+                throw new Error('Missing required fields: userId or expenseId.');
+            }
 
-    // Fetch all expenses for a given user
-    public async get(userId: string): Promise<Expense | null> {
-        // Fetch the expenses from the repository
-        const expenses = await this.expenseRepository.get(userId);
+            updatedFields.updatedAt = new Date().toISOString();
 
-        // If no expenses are found, return null
-        if (!expenses || expenses.length === 0) {
-            return null;
+            await this.expenseRepository.update(userId, expenseId, updatedFields);
+            this.logger.info(`Expense updated successfully: userId=${userId}, expenseId=${expenseId}`);
+        } catch (error) {
+            const errorMessage = `Failed to update expense: userId=${userId}, expenseId=${expenseId}`;
+            this.logger.error(error, errorMessage);
+            throw new Error('Unable to update the expense. Please try again.');
         }
+    }
 
-        // Return the expenses after mapping them to DTOs
-        return expenses ? ExpenseDtoBuilder.build(expenses[0]) : null;
+    public async get(userId: string, expenseId?: string): Promise<ExpenseDto[] | null> {
+        try {
+            const expenses = await this.expenseRepository.get(userId, expenseId);
+
+            if (!expenses || expenses.length === 0) {
+                this.logger.warn(`No expenses found for userId=${userId}, expenseId=${expenseId}`);
+                return null;
+            }
+
+            return expenses.flatMap((expense) => ExpenseDtoBuilder.build(expense));
+        } catch (error) {
+            const errorMessage = `Failed to fetch expenses: userId=${userId}, expenseId=${expenseId}`;
+            this.logger.error(error, errorMessage);
+            throw new Error('Unable to fetch the expenses. Please try again.');
+        }
     }
 }
