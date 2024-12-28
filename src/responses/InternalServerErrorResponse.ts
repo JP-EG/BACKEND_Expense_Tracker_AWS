@@ -1,12 +1,12 @@
 import {BaseResponse} from "./BaseResponse";
-import {StatusCodes} from "http-status-codes";
+import {HttpStatusCode} from "axios";
 
 export class InternalServerErrorResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
     ) {
-        super(StatusCodes.INTERNAL_SERVER_ERROR, {
+        super(HttpStatusCode.InternalServerError, {
             message: 'InternalServerError',
             type: 'https://development.JPEG/InternalServerError',
             title: 'An unexpected server error occurred on the server',

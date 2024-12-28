@@ -1,12 +1,12 @@
 import {BaseResponse} from "./BaseResponse";
-import {StatusCodes} from "http-status-codes";
+import {HttpStatusCode} from "axios";
 
 export class BadRequestResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
     ) {
-        super(StatusCodes.BAD_REQUEST, {
+        super(HttpStatusCode.BadRequest, {
             message: 'BadRequest',
             type: 'https://development.JPEG/BadRequest',
             title: 'The request could not be understood or was missing required parameters.',

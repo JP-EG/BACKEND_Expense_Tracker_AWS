@@ -1,5 +1,5 @@
-import { StatusCodes } from "http-status-codes";
 import {BaseResponse} from "./BaseResponse";
+import {HttpStatusCode} from "axios";
 
 export class OkResponse extends BaseResponse {
     constructor(
@@ -7,7 +7,7 @@ export class OkResponse extends BaseResponse {
         requestId: string,
         expense: object[] | null,
     ) {
-        super(StatusCodes.OK, {
+        super(HttpStatusCode.Ok, {
             message: 'OK',
             type: 'https://development.JPEG/OK',
             title: 'The request has been processed successfully',

@@ -1,6 +1,6 @@
 import { BaseResponse } from "./BaseResponse";
 import {Expense} from "../expense/Expense";
-import {StatusCodes} from "http-status-codes";
+import {HttpStatusCode} from "axios";
 
 export class CreatedResponse extends BaseResponse {
     constructor(
@@ -8,7 +8,7 @@ export class CreatedResponse extends BaseResponse {
         requestId: string,
         value: Expense,
     ) {
-        super(StatusCodes.CREATED, {
+        super(HttpStatusCode.Created, {
             message: 'Created',
             type: 'https://development.JPEG/Created',
             title: 'The resource was successfully created.',

@@ -1,4 +1,4 @@
-import { StatusCodes } from "http-status-codes";
+import {HttpStatusCode} from "axios";
 
 type MessageType = object | string | null;
 type BaseResponseHeaders = {
@@ -19,12 +19,12 @@ type BodyProperties = {
 }
 
 export abstract class BaseResponse {
-    statusCode: StatusCodes;
+    statusCode: HttpStatusCode;
     headers: BaseResponseHeaders;
 
     body: string;
 
-    protected constructor(status: StatusCodes, bodyProperties: BodyProperties) {
+    protected constructor(status: HttpStatusCode, bodyProperties: BodyProperties) {
         this.statusCode = status;
         this.headers = {
             'Content-Type': 'application/json',
