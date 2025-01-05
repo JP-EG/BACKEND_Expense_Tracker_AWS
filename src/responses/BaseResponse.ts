@@ -4,6 +4,7 @@ type MessageType = object | string | null;
 type BaseResponseHeaders = {
     'Content-Type': string,
     'Access-Control-Allow-Origin': string,
+    'Access-Control-Allow-Methods': string,
     'Access-Control-Allow-Credentials': boolean
 }
 type BodyProperties = {
@@ -29,6 +30,7 @@ export abstract class BaseResponse {
         this.headers = {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
             'Access-Control-Allow-Credentials': true,
         };
         this.body = JSON.stringify({
