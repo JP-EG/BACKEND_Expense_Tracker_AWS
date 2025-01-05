@@ -1,12 +1,11 @@
 import { BaseResponse } from "./BaseResponse";
-import {Expense} from "../expense/Expense";
 import {HttpStatusCode} from "axios";
 
 export class CreatedResponse extends BaseResponse {
     constructor(
         instance: string,
         requestId: string,
-        value: Expense,
+        expense: object | null,
     ) {
         super(HttpStatusCode.Created, {
             message: 'Created',
@@ -17,7 +16,7 @@ export class CreatedResponse extends BaseResponse {
             instance,
             source: [],
             requestId,
-            value,
+            value: expense,
         });
     }
 }
