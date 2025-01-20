@@ -8,6 +8,7 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
 import {TableViewer} from "cdk-dynamo-table-viewer";
 import {EndpointType, LambdaIntegration, MethodLoggingLevel, RestApi} from "aws-cdk-lib/aws-apigateway";
+import {addCorsOptions} from "./constructs/preFlightOptionsRequest";
 
 export class AwsProjectStack extends cdk.Stack {
   constructor(
@@ -172,15 +173,19 @@ export class AwsProjectStack extends cdk.Stack {
 
       const expense = apiGateway.root.addResource('expense');
       expense.addMethod('GET', new LambdaIntegration(getExpensesLambda));
+      addCorsOptions(expense);
 
       const postExpense = apiGateway.root.addResource('add-expense');
       postExpense.addMethod('POST', new LambdaIntegration(postExpenseLambda));
+      addCorsOptions(postExpense);
 
       const putExpense = apiGateway.root.addResource('update-expense');
       putExpense.addMethod('PUT', new LambdaIntegration(putExpenselambda));
+      addCorsOptions(putExpense);
 
       const deleteExpense = apiGateway.root.addResource('delete-expense');
       deleteExpense.addMethod('DELETE', new LambdaIntegration(deleteExpenseLambda));
+      addCorsOptions(deleteExpense);
 
       new TableViewer(this, 'ViewExpenseTable', {
           title: 'Expense Table',
