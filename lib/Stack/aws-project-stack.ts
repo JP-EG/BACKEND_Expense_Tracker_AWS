@@ -33,21 +33,6 @@ export class AwsProjectStack extends cdk.Stack {
           pointInTimeRecovery: true,
           removalPolicy: RemovalPolicy.DESTROY,
       });
-      new dynamodb.Table(this, "BudgetTable", {
-          tableName: "BudgetTable",
-          partitionKey: {
-              name: "userId",
-              type: dynamodb.AttributeType.STRING,
-          },
-          sortKey: {
-              name: "category",
-              type: dynamodb.AttributeType.STRING,
-          },
-          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-          deletionProtection: false,
-          pointInTimeRecovery: true,
-          removalPolicy: RemovalPolicy.DESTROY,
-      });
       expenseTable.addGlobalSecondaryIndex({
           indexName: "expensesByDate-index",
           partitionKey: {
