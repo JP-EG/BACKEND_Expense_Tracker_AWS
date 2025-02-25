@@ -5,7 +5,7 @@
     "aws-project": "bin/aws-project.js"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "npm run lint && webpack",
     "clean": "tsc --build --clean",
     "synth": "npm run clean && npm run build && ls -R dist && cdk synth --json",
     "watch": "tsc -w",

@@ -6,7 +6,6 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import {AssetCode} from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
-import {TableViewer} from "cdk-dynamo-table-viewer";
 import {EndpointType, LambdaIntegration, MethodLoggingLevel, RestApi} from "aws-cdk-lib/aws-apigateway";
 import {addCorsOptions} from "./constructs/preFlightOptionsRequest";
 
@@ -171,10 +170,5 @@ export class AwsProjectStack extends cdk.Stack {
       const deleteExpense = apiGateway.root.addResource('delete-expense');
       deleteExpense.addMethod('DELETE', new LambdaIntegration(deleteExpenseLambda));
       addCorsOptions(deleteExpense);
-
-      new TableViewer(this, 'ViewExpenseTable', {
-          title: 'Expense Table',
-          table: expenseTable,
-      });
   }
 }
