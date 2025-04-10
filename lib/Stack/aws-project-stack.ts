@@ -29,7 +29,7 @@ export class AwsProjectStack extends cdk.Stack {
           },
           billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
           deletionProtection: false,
-          pointInTimeRecovery: true,
+          pointInTimeRecovery: false,
           removalPolicy: RemovalPolicy.DESTROY,
       });
       expenseTable.addGlobalSecondaryIndex({
