@@ -79,7 +79,7 @@ export class AwsProjectStack extends cdk.Stack {
 
       const getExpensesLambda = new NodejsFunction(this, "getExpensesLambda", {
           functionName: 'getExpensesLambda',
-          runtime: lambda.Runtime.NODEJS_LATEST,
+          runtime: lambda.Runtime.NODEJS_20_X,
           memorySize: 128,
           handler: 'src/getExpensesLambda/index.handler',
           timeout: Duration.seconds(30),
@@ -92,7 +92,7 @@ export class AwsProjectStack extends cdk.Stack {
 
       const postExpenseLambda = new NodejsFunction(this, "postExpenseLambda", {
           functionName: 'postExpenseLambda',
-          runtime: lambda.Runtime.NODEJS_LATEST,
+          runtime: lambda.Runtime.NODEJS_20_X,
           memorySize: 128,
           handler: 'src/postExpenseLambda/index.handler',
           timeout: Duration.seconds(30),
@@ -105,7 +105,7 @@ export class AwsProjectStack extends cdk.Stack {
 
       const putExpenselambda = new NodejsFunction(this, "putExpenseLambda", {
          functionName: 'putExpenseLambda',
-         runtime: lambda.Runtime.NODEJS_LATEST,
+         runtime: lambda.Runtime.NODEJS_20_X,
          memorySize: 128,
          handler: 'src/putExpenseLambda/index.handler',
          timeout: Duration.seconds(30),
@@ -118,7 +118,7 @@ export class AwsProjectStack extends cdk.Stack {
 
       const deleteExpenseLambda = new NodejsFunction(this, 'deleteExpenseLambda', {
           functionName: 'deleteExpenseLambda',
-          runtime: lambda.Runtime.NODEJS_LATEST,
+          runtime: lambda.Runtime.NODEJS_20_X,
           memorySize: 128,
           handler: 'src/deleteExpenseLambda/index.handler',
           timeout: Duration.seconds(30),
