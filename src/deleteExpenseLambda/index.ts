@@ -24,6 +24,7 @@ export const handler = async (event: HandlerEvent, context: Context) => {
     const requestId = context.awsRequestId;
 
     logger.info(`START: Deleting expense`, { userId, expenseId, requestId });
+    logger.info("hello");
 
     try {
         if (!userId || !expenseId) {
