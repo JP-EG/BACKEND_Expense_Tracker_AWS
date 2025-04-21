@@ -3,11 +3,11 @@
 // import * as AwsProject from '../lib/aws-project-stack';
 
 // example test. To run these tests, uncomment this file along with the
-// example resource in lib/aws-project-stack.ts
+// example resource in lib/stack.ts
 test('SQS Queue Created', () => {
 //   const app = new cdk.App();
 //     // WHEN
-//   const stack = new AwsProject.AwsProjectStack(app, 'MyTestStack');
+//   const stack = new AwsProject.Stack(app, 'MyTestStack');
 //     // THEN
 //   const template = Template.fromStack(stack);
 

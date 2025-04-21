@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { AwsProjectStack } from '../lib/Stack/aws-project-stack';
+import { Stack } from '../lib/Stack/stack';
 
 const app = new cdk.App();
 
-new AwsProjectStack(app, 'AwsProjectStack');
+new Stack(app, 'AwsProjectStack');
 
 
 app.synth();
