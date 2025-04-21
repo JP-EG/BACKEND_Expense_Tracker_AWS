@@ -5,7 +5,7 @@ import { Stack } from '../lib/Stack/stack';
 
 const app = new cdk.App();
 
-new Stack(app, 'AwsProjectStack');
+new Stack(app, 'Stack');
 
 
 app.synth();
