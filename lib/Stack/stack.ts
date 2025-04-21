@@ -9,7 +9,7 @@ import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
 import {EndpointType, LambdaIntegration, MethodLoggingLevel, RestApi} from "aws-cdk-lib/aws-apigateway";
 import {addCorsOptions} from "./constructs/preFlightOptionsRequest";
 
-export class AwsProjectStack extends cdk.Stack {
+export class Stack extends cdk.Stack {
   constructor(
       scope: Construct,
       id: string,
