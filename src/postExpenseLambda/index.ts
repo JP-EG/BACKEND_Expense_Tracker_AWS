@@ -17,7 +17,6 @@ const expenseService = new ExpenseService();
 
 export const handler = async (event: HandlerEvent, context: HandlerContext) => {
     logger.info('POST_EXPENSE_LAMBDA_HANDLER');
-    logger.info('Full event:', event);
 
     const requestId = context.awsRequestId;
     logger.info('START');
