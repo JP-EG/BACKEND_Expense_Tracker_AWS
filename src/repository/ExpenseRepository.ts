@@ -69,8 +69,6 @@ export default class ExpenseRepository extends RepositoryBase {
             baseParams.ExpressionAttributeValues[":expenseId"] = { S: expenseId };
         }
 
-        this.logger.info("Query Params: " + JSON.stringify(baseParams, null, 2));
-
         try {
             const queryCommand = new QueryCommand(<QueryCommandInput>baseParams);
             const { Items } = await this.dynamoDBClient.send(queryCommand);
