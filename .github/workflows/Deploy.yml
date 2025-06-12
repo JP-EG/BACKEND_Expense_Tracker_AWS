@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 22.11.0
+          node-version: 24.2.0
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -35,4 +35,4 @@ jobs:
         run: npm run lint
 
       - name: Deploy
-        run: cdk deploy
+        run: npx cdk deploy
