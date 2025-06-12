@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    "target": "ES2020",
     "module": "commonjs",
-    "lib": ["es2016", "es2017.object", "es2017.string",],
+    "outDir": "dist",
+    "rootDir": ".",
+    "lib": ["es2016", "es2017.object", "es2017.string"],
     "skipLibCheck": true,
     "declaration": false,
     "strict": true,
@@ -19,7 +21,9 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
-  "exclude": ["cdk.out", "test"],
+  "include": ["src/**/*", "lib/**/*", "bin/**/*"],
+  "exclude": ["node_modules", "cdk.out", "test"]
+
 }
