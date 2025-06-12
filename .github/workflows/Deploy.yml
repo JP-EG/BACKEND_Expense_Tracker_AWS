@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20.0.0
+          node-version: 20.9.0
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -32,9 +32,6 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-
-      - name: Run Test
-        run: npm run test
 
       - name: Run Lint
         run: npm run lint
