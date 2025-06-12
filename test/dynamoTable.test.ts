@@ -20,7 +20,9 @@ describe('DynamoDB Table', () => {
             },
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             deletionProtection: false,
-            pointInTimeRecovery: true,
+            pointInTimeRecoverySpecification: {
+                pointInTimeRecoveryEnabled: false
+            },
             removalPolicy: RemovalPolicy.RETAIN,
         });
     });
