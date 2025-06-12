@@ -19,7 +19,9 @@ export class ExpenseTable extends Construct {
             sortKey: { name: 'expenseId', type: AttributeType.STRING },
             billingMode: BillingMode.PAY_PER_REQUEST,
             deletionProtection: false,
-            pointInTimeRecovery: false,
+            pointInTimeRecoverySpecification: {
+                pointInTimeRecoveryEnabled: false
+            },
             removalPolicy: RemovalPolicy.DESTROY,
         });
 
