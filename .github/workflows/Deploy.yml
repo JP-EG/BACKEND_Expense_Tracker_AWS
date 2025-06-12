@@ -31,10 +31,13 @@ jobs:
           aws-region: 'eu-west-1'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Lint
         run: npm run lint
 
-      - name: Deploy
+      - name: Build Project
+        run: npm run build
+
+      - name: Deploy CDK
         run: npx cdk deploy --require-approval=never
