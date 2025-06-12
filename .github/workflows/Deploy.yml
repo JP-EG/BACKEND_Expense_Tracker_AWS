@@ -35,4 +35,4 @@ jobs:
         run: npm run lint
 
       - name: Deploy
-        run: cdk deploy --require-approval never
+        run: cdk deploy
