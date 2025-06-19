@@ -35,7 +35,7 @@ export const handler = async (event: HandlerEvent, context: HandlerContext) => {
         logger.info(`Received expense data: ${JSON.stringify(expenseData)}`);
 
         if (!expenseData.userId || !expenseData.expenseId || !expenseData.amount || !expenseData.category || !expenseData.date) {
-            const message = `Missing required fields: userId, expenseId, amount, category, and date`;
+            const message = `Missing required fields: userId, expenseId, amount, category, and date.`;
             logger.warn(message);
 
             const response = new BadRequestResponse('expense', requestId);
