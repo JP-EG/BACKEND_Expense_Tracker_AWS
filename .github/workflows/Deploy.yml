@@ -6,11 +6,11 @@ on:
       - master
 
 jobs:
-  call-workflow-build:
+  call-workflow:
     uses: ./.github/workflows/Build.yml
 
   deploy:
-    needs: call-workflow-build
+    needs: call-workflow
     runs-on: ubuntu-latest
 
     env:
