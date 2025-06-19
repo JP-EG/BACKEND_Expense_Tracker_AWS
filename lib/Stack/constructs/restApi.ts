@@ -22,7 +22,7 @@ export class ExpenseApi extends Construct {
 
         this.api = new RestApi(this, 'Expense-API', {
             restApiName: 'Expense-API',
-            cloudWatchRole: false,
+            cloudWatchRole: true,
             deployOptions: {
                 stageName: 'development',
                 loggingLevel: MethodLoggingLevel.INFO,
