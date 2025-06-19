@@ -7,11 +7,8 @@ on:
   workflow_call:
 
 jobs:
-  call-workflow:
-    uses: ./.github/workflows/Build.yml
 
   deploy:
-    needs: call-workflow
     runs-on: ubuntu-latest
 
     env:
@@ -37,6 +34,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Run Lint
+        run: npm run lint
+
+      - name: Build Project
+        run: npm run build
 
       - name: Deploy CDK
         run: npx cdk deploy --require-approval=never
