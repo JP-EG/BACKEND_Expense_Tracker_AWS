@@ -1,4 +1,4 @@
-name: CDK Deployment
+name: CDK Deploy Project
 
 on:
   push:
@@ -6,7 +6,11 @@ on:
       - master
 
 jobs:
+  call-workflow-build:
+    uses: ./.github/workflows/Build.yml
+
   deploy:
+    needs: call-workflow-build
     runs-on: ubuntu-latest
 
     env:
@@ -15,29 +19,12 @@ jobs:
       CDK_DEFAULT_REGION: 'eu-west-1'
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.9.0
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: 'eu-west-1'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run Lint
-        run: npm run lint
-
-      - name: Build Project
-        run: npm run build
 
       - name: Deploy CDK
         run: npx cdk deploy --require-approval=never
