@@ -3,9 +3,10 @@ const { readdirSync, accessSync } = require('fs');
 
 module.exports = () => {
     const entry = {};
+    const lambdaBase = './src/lambdas/';
 
-    readdirSync('./src/').forEach((directory) => {
-        const lambdaTs = `./src/${directory}/index.ts`;
+    readdirSync(lambdaBase).forEach((directory) => {
+        const lambdaTs = `${lambdaBase}${directory}/index.ts`;
 
         try {
             accessSync(lambdaTs);
