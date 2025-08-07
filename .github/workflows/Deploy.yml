@@ -41,5 +41,8 @@ jobs:
       - name: Build Project
         run: npm run build
 
+      - name: Setup CDK
+        run: npx cdk synth
+
       - name: Deploy CDK
         run: npx cdk deploy --require-approval=never
