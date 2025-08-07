@@ -1,9 +1,9 @@
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { NotFoundResponse } from "../responses/NotFoundResponse";
-import { OkResponse } from "../responses/OkResponse";
-import { InternalServerErrorResponse } from "../responses/InternalServerErrorResponse";
-import ExpenseService from "../service/ExpenseService";
-import {Logger} from "../common/Logger";
+import { NotFoundResponse } from "../../responses/NotFoundResponse";
+import { OkResponse } from "../../responses/OkResponse";
+import { InternalServerErrorResponse } from "../../responses/InternalServerErrorResponse";
+import ExpenseService from "../../service/ExpenseService";
+import {Logger} from "../../common/Logger";
 
 export type HandlerEvent = Pick<APIGatewayProxyEvent, 'queryStringParameters'> & {
     queryStringParameters: {

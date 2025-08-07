@@ -31,7 +31,7 @@ export class LambdaFactory extends Construct {
             functionName: id,
             runtime: Runtime.NODEJS_20_X,
             memorySize: 128,
-            handler: `src/${folderName}/index.handler`,
+            handler: `src/lambdas/${folderName}/index.handler`,
             timeout: Duration.seconds(30),
             code: new AssetCode(`dist/${folderName}`),
             environment,

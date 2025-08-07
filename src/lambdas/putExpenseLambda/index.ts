@@ -1,10 +1,10 @@
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { BadRequestResponse } from "../responses/BadRequestResponse";
-import { InternalServerErrorResponse } from "../responses/InternalServerErrorResponse";
-import { Expense } from "../expense/Expense";
-import ExpenseService from "../service/ExpenseService";
-import { OkResponse } from "../responses/OkResponse";
-import {Logger} from "../common/Logger";
+import { BadRequestResponse } from "../../responses/BadRequestResponse";
+import { InternalServerErrorResponse } from "../../responses/InternalServerErrorResponse";
+import { Expense } from "../../expense/Expense";
+import ExpenseService from "../../service/ExpenseService";
+import { OkResponse } from "../../responses/OkResponse";
+import {Logger} from "../../common/Logger";
 
 export type HandlerEvent = Pick<APIGatewayProxyEvent, 'body'> & {
     body: Expense,
